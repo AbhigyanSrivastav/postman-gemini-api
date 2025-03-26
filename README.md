@@ -1,45 +1,28 @@
-# Postman Gemini API Collection 🚀  
+### **Importing and Using the Postman Collections & Environment**  
 
-This repository contains a Postman collection for interacting with the **Google Gemini API**. It provides ready-to-use requests for:  
+This repository contains **four Postman collections** and **one environment** for interacting with the Gemini API. Follow these steps to import and use them:  
 
-- **Text generation**  
-- **Image and audio processing**  
-- **Chat streaming**  
-- **File uploads and referencing**  
+### **1. Import the Collections**  
+- Open **Postman**  
+- Go to **File > Import**  
+- Select and import the following JSON files from this repository:  
+  - **Text Generation**  
+  - **Vision Processing**  
+  - **Audio Processing**  
+  - **Code Execution**  
 
-## 📌 Getting Started  
+### **2. Import the Environment**  
+- Navigate to **Postman > Environments**  
+- Click **Import** and select **Gemini API Environment**  
+- Ensure your **API_KEY** and other required values are set correctly  
 
-1. **Clone the Repository**  
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+### **3. Using the Collections**  
+- Select a collection based on your use case:  
+  - **Gemini Text Generation** – Generate AI-powered text responses  
+  - **Gemini Vision Processing** – Upload and analyze images  
+  - **Gemini Audio Processing** – Upload and process audio files  
+  - **Gemini Code Execution** – Generate and execute code  
 
-2. **Import into Postman**  
-   - Open **Postman**  
-   - Go to **File > Import**  
-   - Select the downloaded collection JSON  
+- Choose a request, ensure your environment is active, and click **Send** to test the API.  
 
-3. **Set Up Variables**  
-   - Navigate to **Postman > Environments**  
-   - Add your `API_KEY` and other required values  
-
-## 📂 Collection Overview  
-
-| Request Type       | Description |
-|-------------------|-------------|
-| **Generate Text**  | Generate AI-powered text responses |
-| **Chat Streaming** | Enable streaming responses in conversations |
-| **Upload Files**   | Upload images/audio and reference them in requests |
-| **Process Images** | Send base64-encoded or uploaded images for analysis |
-| **Run Code**       | Execute and evaluate Python code snippets |
-
-## 📢 Contributing  
-Feel free to submit issues or pull requests to improve the collection!  
-
-## 🔒 Security  
-This collection does not include sensitive API keys. Make sure to **keep your keys private** when sharing or forking this repository.  
-
-## 📜 License  
-MIT License  
-```
-
-Would you like any modifications or additional details? 😊
+This setup allows you to seamlessly interact with Gemini’s AI capabilities while keeping configurations manageable through the **Gemini API Environment**.
