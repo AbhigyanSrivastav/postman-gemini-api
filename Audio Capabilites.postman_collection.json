@@ -1,0 +1,154 @@
+{
+	"info": {
+		"_postman_id": "ad29c398-3a32-48dc-a5b5-6fe254eb92b3",
+		"name": "Audio Capabilites",
+		"description": "Gemini’s Audio API allows you to upload audio files and generate content from them. This process happens in **three steps**, ensuring the audio file is properly uploaded before requesting an AI-generated response.\n\nThis method is required when the **combined size of files and system instructions exceeds 20 MB**. The **File API** supports file uploads of up to **2 GB per file** and **20 GB per project**, with files being stored for **48 hours**. Uploaded files cannot be downloaded but can be accessed via the API key.\n\n#### **Step 1: Get an Upload URL**\n\nBefore sending an audio file, you need a special **upload URL** from the API. This tells the system you're about to upload a file.\n\n- **Request:** Sends a request to get an upload URL.\n    \n- **Response:** Returns a unique **upload URI** where the audio file will be uploaded.\n    \n\nThis step is necessary because audio files cannot be sent directly in a request. The API first needs a designated location to receive the file.\n\n#### **Step 2: Upload the Audio File**\n\nOnce you have the **upload URI**, the next step is sending your audio file to it.\n\n- **Request:** Uploads the audio file to the provided **upload URI**.\n    \n- **Response:** Confirms that the audio file was successfully uploaded.\n    \n\nThis step ensures that the API has properly stored your audio file before you try to use it.\n\n#### **Step 3: Generate Content from the Audio File**\n\nNow that the audio file is uploaded, you can use it to generate a response from the AI.\n\n- **Request:** Asks the AI to describe or analyze the uploaded audio file.\n    \n- **Response:** Returns text-based insights based on the audio file, such as transcriptions, sound descriptions, or key details.\n    \n\nThis final step allows the AI to process and understand the audio file before providing relevant output.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42938289"
+	},
+	"item": [
+		{
+			"name": "Get-Upload-Url",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Goog-Upload-Command",
+						"value": "start",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-Goog-Upload-Header-Content-Type",
+						"value": "audio/mp3",
+						"type": "text"
+					},
+					{
+						"key": "X-Goog-Upload-Header-Content-Length",
+						"value": "2162688",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"file\": {\r\n        \"display_name\": \"AUDIO\"\r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{FILE_UPLOAD_BASE_URL}}?key={{API_KEY}}",
+					"host": [
+						"{{FILE_UPLOAD_BASE_URL}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}"
+						}
+					]
+				},
+				"description": "### **Get an Upload URL (Audio) - Description**\n\nThis request generates an **upload URL** where an audio file can be uploaded. The response does not contain a body but provides important headers required for the next step.\n\n#### **Request Parameters:**\n\n- **`display_name`** _(optional)_ – A name for the file to help with identification.\n    \n\n#### **Response Headers:**\n\n- **`X-GUploader-UploadID`** – A unique **Upload ID** that identifies the upload session.\n    \n- **`X-Goog-Upload-URL`** – The full URL where the audio file must be uploaded in the next step.\n    \n\n#### **Upload URL Parameters:**\n\n- **`key`** – Your API key for authentication.\n    \n- **`upload_id`** – The unique Upload ID provided in the response header.\n    \n- **`upload_protocol`** – Defines the upload method (`resumable`).\n    \n\nThis URL must be used in the next step to upload the actual audio file."
+			},
+			"response": []
+		},
+		{
+			"name": "Upload-Audio",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Goog-Upload-Offset",
+						"value": "0",
+						"type": "text"
+					},
+					{
+						"key": "X-Goog-Upload-Command",
+						"value": "upload,finalize",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "/F:/file_example_MP3_2MG.mp3"
+					}
+				},
+				"url": {
+					"raw": "{{FILE_UPLOAD_BASE_URL}}?key={{API_KEY}}&upload_id={{UPLOAD_ID}}&upload_protocol=resumable",
+					"host": [
+						"{{FILE_UPLOAD_BASE_URL}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}"
+						},
+						{
+							"key": "upload_id",
+							"value": "{{UPLOAD_ID}}"
+						},
+						{
+							"key": "upload_protocol",
+							"value": "resumable"
+						}
+					]
+				},
+				"description": "### **Upload an Audio File - Description**\n\nThis request uploads an **audio file** to the **upload URL** received in the previous step. The request body contains the **binary audio data**, and specific headers are required to complete the upload.\n\n#### **Request Headers:**\n\n- **`X-Goog-Upload-Offset`** – The byte position where the upload should begin. Set to `0` for a new upload.\n    \n- **`X-Goog-Upload-Command`** – Specifies the upload action. Use `upload, finalize` to upload and complete the process in one step.\n    \n- **`Content-Length`** – The size of the audio file in bytes.\n    \n- **`Content-Type`** – The MIME type of the audio file (e.g., `audio/mpeg`).\n    \n\n#### **Upload Request Parameters:**\n\n- **`key`** – Your API key for authentication.\n    \n- **`upload_id`** – The unique Upload ID obtained from the previous step.\n    \n- **`upload_protocol`** – Specifies the upload method (`resumable`).\n    \n\n#### **Response Fields:**\n\n- **`uri`** – The reference to the uploaded audio file, required for content generation.\n    \n- **`name`** – The internal file name assigned by the API.\n    \n- **`mimeType`** – The type of audio file uploaded.\n    \n- **`sizeBytes`** – The size of the uploaded audio file in bytes.\n    \n\nThe **`uri`** received in this step is essential for requesting AI-generated content from the audio file in the next step."
+			},
+			"response": []
+		},
+		{
+			"name": "Generate-From-Audio",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contents\": [\r\n        {\r\n            \"parts\": [\r\n                {\r\n                    \"text\": \"Describe this audio clip\"\r\n                },\r\n                {\r\n                    \"file_data\": {\r\n                        \"mime_type\": \"audio/mp3\",\r\n                        \"file_uri\": \"{{FILE_URI}}\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"generation_config\": {\r\n        \"temperature\": 0.7,\r\n        \"top_p\": 0.9,\r\n        \"top_k\": 40\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/models/{{MODEL_NAME}}:{{STREAM_TYPE}}?key={{API_KEY}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"models",
+						"{{MODEL_NAME}}:{{STREAM_TYPE}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}"
+						}
+					]
+				},
+				"description": "### **Generate Content from Audio - Description**\n\nThis API request sends an **audio file** to the Gemini API and generates a response based on the provided text prompt. The AI can analyze, transcribe, or extract information from the audio.\n\n#### **Parameters:**\n\n- **`contents`** _(required)_ – Contains the **text prompt** and the **audio reference**.\n    \n- **`file_data`** _(required)_ – Holds the **MIME type** (e.g., `audio/mp3`) and the **file URI** of the uploaded audio file.\n    \n- **`generation_config`** _(optional)_ – Adjusts response behavior:\n    \n    - **`temperature`** – Controls randomness (higher = more creative, lower = more predictable).\n        \n    - **`top_p`** – Adjusts response diversity (lower = more focused, higher = more open-ended).\n        \n    - **`top_k`** – Limits next-word choices for more structured output.\n        \n\n#### **Response Fields:**\n\n- **`candidates`** – Contains the AI-generated description or analysis of the audio.\n    \n- **`candidates[0].content.parts.text`** – The actual response text describing the audio.\n    \n\nThis is the final step where the AI processes the uploaded audio and provides a text-based response based on the given prompt."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "UPLOAD_ID",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "FILE_URI",
+			"value": "https://generativelanguage.googleapis.com/v1beta/files/hmrlfjisc0my",
+			"type": "default"
+		}
+	]
+}

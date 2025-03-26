@@ -1,0 +1,85 @@
+{
+	"info": {
+		"_postman_id": "29170c3c-429e-443d-8393-c787fe46a7a6",
+		"name": "Code Capabilites",
+		"description": "Gemini API enables **code generation and execution**, allowing developers to automate computations, solve programming problems, and interactively debug code. This collection provides ready-to-use requests for different use cases:\n\n- **Code Execution** – Generate and execute code based on a given prompt. The AI writes the code, runs it, and returns the output.\n    \n- **Code Execution in Chat** – Engage in a coding conversation where the AI generates, executes, and refines code in response to user queries.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42938289"
+	},
+	"item": [
+		{
+			"name": "Code-Execution",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"tools\": [\r\n        {\r\n            \"code_execution\": {}\r\n        }\r\n    ],\r\n    \"contents\": {\r\n        \"parts\": {\r\n            \"text\": \"What is the sum of the first 50 prime numbers? Generate and run code for the calculation, and make sure you get all 50.\"\r\n        }\r\n    },\r\n    \"generation_config\": {\r\n        \"temperature\": 0.7,\r\n        \"top_p\": 0.9,\r\n        \"top_k\": 40\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/models/{{MODEL_NAME}}:{{STREAM_TYPE}}?key={{API_KEY}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"models",
+						"{{MODEL_NAME}}:{{STREAM_TYPE}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}"
+						}
+					]
+				},
+				"description": "### **Code Execution - Description**\n\nThis API request enables the Gemini model to **generate and execute code** based on a provided text prompt. The model processes the input, generates a code snippet, runs it, and returns the result.\n\n#### **Parameters:**\n\n- **`contents`** _(required)_ – Contains the **text prompt** describing the task that requires code execution.\n    \n- **`tools`** _(required)_ – Specifies that **code execution** is enabled.\n    \n- **`generation_config`** _(optional)_ – Fine-tunes the response behavior:\n    \n    - **`temperature`** – Controls randomness (higher = more creative, lower = more predictable).\n        \n    - **`top_p`** – Adjusts response diversity (lower = more focused, higher = more open-ended).\n        \n    - **`top_k`** – Limits next-word choices for a more structured output.\n        \n\n#### **Response Fields:**\n\n- **`candidates`** – Contains the AI-generated response.\n    \n- **`candidates[0].content.parts.text`** – The output text, including the generated code and its execution result."
+			},
+			"response": []
+		},
+		{
+			"name": "Code-Execution-In-Chat",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"tools\": [{\"code_execution\": {}}],\r\n    \"contents\": [\r\n        {\r\n            \"role\": \"user\",\r\n            \"parts\": [{\r\n                \"text\": \"Can you print \\\"Hello world!\\\"?\"\r\n            }]\r\n        },\r\n        {\r\n            \"role\": \"model\",\r\n            \"parts\": [\r\n                {\r\n                    \"text\": \"Sure! Here is the Python code to print 'Hello World!':\"\r\n                },\r\n                {\r\n                    \"executable_code\": {\r\n                        \"language\": \"PYTHON\",\r\n                        \"code\": \"print(\\\"hello world!\\\")\"\r\n                    }\r\n                },\r\n                {\r\n                    \"code_execution_result\": {\r\n                        \"outcome\": \"OUTCOME_OK\",\r\n                        \"output\": \"hello world!\\n\"\r\n                    }\r\n                },\r\n                {\r\n                    \"text\": \"I have printed \\\"hello world!\\\" using the provided Python code block.\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"parts\": [{\r\n                \"text\": \"What is the sum of the first 50 prime numbers? Generate and run code for the calculation, and make sure you get all 50.\"\r\n            }]\r\n        }\r\n    ],\r\n    \"generation_config\": {\r\n        \"temperature\": 0.7,\r\n        \"top_p\": 0.9,\r\n        \"top_k\": 40\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/models/{{MODEL_NAME}}:{{STREAM_TYPE}}?key={{API_KEY}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"models",
+						"{{MODEL_NAME}}:{{STREAM_TYPE}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}"
+						}
+					]
+				},
+				"description": "### **Code Execution in Chat - Description**  \n\nThis API request allows the Gemini model to **generate, execute, and return code-based solutions** within an interactive chat. The model can process user queries, generate relevant code, execute it, and provide the output in real-time.  \n\n#### **Parameters:**  \n- **`contents`** *(required)* – A list of messages exchanged between the **user** (`role: user`) and the **AI** (`role: model`).  \n- **`tools`** *(required)* – Specifies that **code execution** is enabled.  \n- **`executable_code`** *(generated by AI)* – The code snippet that the AI generates based on user input.  \n- **`code_execution_result`** *(generated by AI)* – The output or result after running the generated code.  \n- **`generation_config`** *(optional)* – Fine-tunes the response behavior:  \n  - **`temperature`** – Controls randomness (higher = more creative, lower = more predictable).  \n  - **`top_p`** – Adjusts response diversity (lower = more focused, higher = more open-ended).  \n  - **`top_k`** – Limits next-word choices for a more structured output.  \n\n#### **Response Fields:**  \n- **`candidates`** – Contains the AI-generated response.  \n- **`candidates[0].content.parts.executable_code`** – The generated code snippet.  \n- **`candidates[0].content.parts.code_execution_result`** – The execution output of the generated code.  \n- **`candidates[0].content.parts.text`** – The AI’s explanation of the generated code.  \n"
+			},
+			"response": []
+		}
+	]
+}

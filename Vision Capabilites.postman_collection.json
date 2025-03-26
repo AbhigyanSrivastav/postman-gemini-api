@@ -1,0 +1,292 @@
+{
+	"info": {
+		"_postman_id": "31153cdd-3a74-4a1e-8ff4-bd5a23e53ec6",
+		"name": "Vision Capabilites",
+		"description": "Gemini models can process images and videos, enabling advanced use cases that previously required specialized models. Some key vision capabilities include:\n\n- **Captioning and Q&A** – Generate captions and answer questions about images.\n    \n- **PDF Understanding** – Transcribe and analyze PDFs with support for up to **2 million tokens**.\n    \n- **Video Analysis** – Describe, segment, and extract information from videos up to **90 minutes long**.\n    \n- **Object Detection** – Identify objects in images and provide **bounding box coordinates**.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42938289"
+	},
+	"item": [
+		{
+			"name": "Image Upload & Content Generation",
+			"item": [
+				{
+					"name": "Get-Upload-Url",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Goog-Upload-Protocol",
+								"value": "resumable",
+								"type": "text"
+							},
+							{
+								"key": "X-Goog-Upload-Command",
+								"value": "start",
+								"type": "text"
+							},
+							{
+								"key": "X-Goog-Upload-Header-Content-Length",
+								"value": "830389",
+								"type": "text"
+							},
+							{
+								"key": "X-Goog-Upload-Header-Content-Type",
+								"value": "image/jpeg",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"file\": {\r\n        \"display_name\": \"my_image\"\r\n    }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FILE_UPLOAD_BASE_URL}}?key={{API_KEY}}",
+							"host": [
+								"{{FILE_UPLOAD_BASE_URL}}"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{API_KEY}}"
+								}
+							]
+						},
+						"description": "### **Get an Upload URL - Description**\n\nThis request generates an **upload URL** where an image can be uploaded. The response does not contain a body but returns important headers required for the next step.\n\n#### **Response Headers:**\n\n- **`X-GUploader-UploadID`** – A unique **Upload ID** that identifies the upload session.\n    \n- **`X-Goog-Upload-URL`** – The full URL where the image must be uploaded in the next step.\n    \n\n#### **Upload URL Parameters:**\n\n- **`key`** – Your API key for authentication.\n    \n- **`upload_id`** – The unique Upload ID provided in the response header.\n    \n- **`upload_protocol`** – Defines the upload method (`resumable` in this case).\n    \n\nThis URL must be used in the next step to upload the actual image file."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload-Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Goog-Upload-Offset",
+								"value": "0",
+								"type": "text"
+							},
+							{
+								"key": "X-Goog-Upload-Command",
+								"value": "upload, finalize",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "postman-cloud:///1effc0d0-b59e-45b0-8fed-413a7889ae0d"
+							}
+						},
+						"url": {
+							"raw": "{{FILE_UPLOAD_BASE_URL}}?key={{API_KEY}}&upload_id={{UPLOAD_ID}}&upload_protocol=resumable",
+							"host": [
+								"{{FILE_UPLOAD_BASE_URL}}"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{API_KEY}}"
+								},
+								{
+									"key": "upload_id",
+									"value": "{{UPLOAD_ID}}"
+								},
+								{
+									"key": "upload_protocol",
+									"value": "resumable"
+								}
+							]
+						},
+						"description": "### **Upload an Image - Description**\n\nThis request uploads an image to the **upload URL** received in the previous step. The request body contains the **binary image data**, and specific headers are required to complete the upload.\n\n#### **Request Headers:**\n\n- **`X-Goog-Upload-Offset`** – The byte position where the upload should begin. Set to `0` for a new upload.\n    \n- **`X-Goog-Upload-Command`** – Specifies the upload action. Use `upload, finalize` to upload and complete the process in one step.\n    \n- **`Content-Length(optional)`** – The size of the image in bytes.\n    \n- **`Content-Type(optional)`** – The MIME type of the image (e.g., `image/jpeg`).\n    \n\n#### **Upload Request Parameters:**\n\n- **`key`** – Your API key for authentication.\n    \n- **`upload_id`** – The unique Upload ID obtained from the previous step.\n    \n- **`upload_protocol`** – Specifies the upload method (`resumable`).\n    \n\n#### **Response:**\n\nAfter a successful upload, the API returns metadata about the uploaded file, including its **URI**, which will be used in the next step.\n\n#### **Response Fields:**\n\n- **`uri`** – The reference to the uploaded image, required for content generation.\n    \n- **`name`** – The internal file name assigned by the API.\n    \n- **`mimeType`** – The type of image uploaded.\n    \n- **`sizeBytes`** – The size of the uploaded image in bytes.\n    \n\nThe **`uri`** received in this step is essential for requesting AI-generated content from the image in the next step."
+					},
+					"response": []
+				},
+				{
+					"name": "Generate-From-Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"contents\": [\r\n        {\r\n            \"parts\": [\r\n                {\r\n                    \"text\": \"Can you describe the image?\"\r\n                },\r\n                {\r\n                    \"file_data\": {\r\n                        \"mime_type\": \"audio/mpeg\",\r\n                        \"file_uri\": \"{{FILE_URI}}\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"generation_config\": {\r\n        \"temperature\": 0.7,\r\n        \"top_p\": 0.9,\r\n        \"top_k\": 40\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/models/{{MODEL_NAME}}:{{STREAM_TYPE}}?key={{API_KEY}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"models",
+								"{{MODEL_NAME}}:{{STREAM_TYPE}}"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{API_KEY}}"
+								}
+							]
+						},
+						"description": "### **Generate Content from Image - Description**\n\nThis API request sends an **image** to the Gemini Vision API and generates a response based on the provided text prompt. The AI can describe, analyze, or extract information from the image.\n\n#### **Parameters:**\n\n- **`contents`** _(required)_ – Contains the **text prompt** and the **image reference**.\n    \n- **`file_data`** _(required)_ – Holds the **MIME type** (e.g., `image/jpeg`) and the **file URI** of the uploaded image.\n    \n- **`generation_config`** _(optional)_ – Adjusts response behavior:\n    \n    - **`temperature`** – Controls randomness (higher = more creative, lower = more predictable).\n        \n    - **`top_p`** – Adjusts response diversity (lower = more focused, higher = more open-ended).\n        \n    - **`top_k`** – Limits next-word choices for more structured output.\n        \n\n#### **Response Fields:**\n\n- **`candidates`** – Contains the AI-generated description or analysis of the image.\n    \n- **`candidates[0].content.parts.text`** – The actual response text describing the image."
+					},
+					"response": []
+				}
+			],
+			"description": "Gemini’s Vision API allows you to upload images and generate content from them. This process happens in **three steps**, ensuring the image is properly uploaded before requesting an AI-generated response.\n\nThis method is required when the **combined size of files and system instructions exceeds 20 MB**. The **File API** supports file uploads of up to **2 GB per file** and **20 GB per project**, with files being stored for **48 hours**. Uploaded files cannot be downloaded but can be accessed via the API key.\n\n#### **Step 1: Get an Upload URL**\n\nBefore sending an image, you need a special **upload URL** from the API. This tells the system you're about to upload a file.\n\n- **Request:** Sends a request to get an upload URL.\n    \n- **Response:** Returns a unique **upload URI** where the image will be uploaded.\n    \n\nThis step is necessary because images cannot be sent directly in a request. The API first needs a designated location to receive the file.\n\n#### **Step 2: Upload the Image**\n\nOnce you have the **upload URI**, the next step is sending your image to it.\n\n- **Request:** Uploads the image file to the provided **upload URI**.\n    \n- **Response:** Confirms that the image was successfully uploaded.\n    \n\nThis step ensures that the API has properly stored your image before you try to use it.\n\n#### **Step 3: Generate Content from the Image**\n\nNow that the image is uploaded, you can use it to generate a response from the AI.\n\n- **Request:** Asks the AI to describe or analyze the uploaded image.\n    \n- **Response:** Returns text-based insights based on the image, such as captions, object detection, or descriptions.\n    \n\nThis final step allows the AI to process and understand the image before providing relevant output."
+		},
+		{
+			"name": "Single-Image-Input",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"contents\": [\r\n    {\r\n      \"parts\": [\r\n        {\r\n          \"text\": \"Caption this image.\"\r\n        },\r\n        {\r\n          \"inline_data\": {\r\n            \"mime_type\": \"image/jpeg\",\r\n            \"data\": \"{{YOUR_BASE64_ENCODED_IMAGE}}\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"generation_config\": {\r\n    \"temperature\": 0.7,\r\n    \"top_p\": 0.9,\r\n    \"top_k\": 40\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/models/{{MODEL_NAME}}:{{STREAM_TYPE}}?key={{API_KEY}}\n",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"models",
+						"{{MODEL_NAME}}:{{STREAM_TYPE}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}\n"
+						}
+					]
+				},
+				"description": "### **Single Image Input - Description**\n\nThis API request allows you to send a **Base64-encoded image** directly in the request body without using the File API. It is used when the image size is small enough to be processed in a single request. The AI will analyze the image and generate a response based on the provided text prompt.\n\n#### **Parameters:**\n\n- **`contents`** _(required)_ – Contains the **text prompt** and the **Base64-encoded image**.\n    \n- **`inline_data`** _(required)_ – Holds the **MIME type** (e.g., `image/jpeg`) and the **Base64-encoded image data**.\n    \n- **`generation_config`** _(optional)_ – Adjusts response behavior:\n    \n    - **`temperature`** – Controls randomness (higher = more creative, lower = more predictable).\n        \n    - **`top_p`** – Adjusts response diversity (lower = more focused, higher = more open-ended).\n        \n    - **`top_k`** – Limits next-word choices for more controlled output."
+			},
+			"response": []
+		},
+		{
+			"name": "Multiple-Image-Input",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"contents\": [\r\n    {\r\n      \"parts\": [\r\n        {\r\n          \"inline_data\": {\r\n            \"mime_type\": \"image/jpeg\",\r\n            \"data\": \"{{YOUR_BASE64_ENCODED_IMAGE_1}}\"\r\n          }\r\n        },\r\n        {\r\n          \"inline_data\": {\r\n            \"mime_type\": \"image/png\",\r\n            \"data\": \"{{YOUR_BASE64_ENCODED_IMAGE_2}}\"\r\n          }\r\n        },\r\n        {\r\n          \"text\": \"Generate a list of all the objects contained in both images.\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"generation_config\": {\r\n    \"temperature\": 0.7,\r\n    \"top_p\": 0.9,\r\n    \"top_k\": 40\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/models/{{MODEL_NAME}}:{{STREAM_TYPE}}?key={{API_KEY}}\n",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"models",
+						"{{MODEL_NAME}}:{{STREAM_TYPE}}"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{API_KEY}}\n"
+						}
+					]
+				},
+				"description": "### **Multiple Image Input - Description**\n\nThis API request allows you to send **multiple Base64-encoded images** in a single request along with a text prompt. The AI will analyze both images together and generate a response based on their combined content.\n\n#### **Parameters:**\n\n- **`contents`** _(required)_ – Contains multiple **Base64-encoded images** and the **text prompt**.\n    \n- **`inline_data`** _(required)_ – Holds the **MIME type** (e.g., `image/jpeg`, `image/png`) and the **Base64-encoded image data**.\n    \n- **`generation_config`** _(optional)_ – Adjusts response behavior:\n    \n    - **`temperature`** – Controls randomness (higher = more creative, lower = more predictable).\n        \n    - **`top_p`** – Adjusts response diversity (lower = more focused, higher = more open-ended).\n        \n    - **`top_k`** – Limits next-word choices for more structured output.\n        \n\n#### **Response Fields:**\n\n- **`candidates`** – Contains the AI-generated analysis of both images.\n    \n- **`candidates[0].content.parts.text`** – The actual response text listing the objects found in both images."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "UPLOAD_ID",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "FILE_URI",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "YOUR_BASE64_ENCODED_IMAGE",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "YOUR_BASE64_ENCODED_IMAGE_1",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "YOUR_BASE64_ENCODED_IMAGE_2",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
